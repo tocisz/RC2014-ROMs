@@ -48,5 +48,11 @@ jobs:
             curl -L -H "Accept: application/octet-stream" "$ASSET_URL" -o "forth/$ASSET_NAME"
           done
 
+      - name: Combine files
+        run: |
+          dd bs=1024 count=32       if=/dev/zero | LC_ALL=C tr '\000' '\377' > NF000000.bin
+          dd bs=1024 count=8        if=nascom/rom.bin conv=notrunc of=NF000000.bin
+          dd bs=1024 count=8 seek=8 if=forth/rom.bin  conv=notrunc of=NF000000.bin
+
       - name: List Downloaded Files
-        run: ls -lR .
+        run: xxd NF000000.bin

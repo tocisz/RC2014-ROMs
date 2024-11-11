@@ -16,9 +16,8 @@ jobs:
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - name: Fetch NASCOM-BASIC release
-        id: fetch_release
+        id: fetch_nascom
         run: |
           RELEASE_DATA=$(curl -s https://api.github.com/repos/tocisz/RC2014-NASCOM/releases/latest)
           RELEASE_ID=$(echo "$RELEASE_DATA" | jq -r '.id')
@@ -31,6 +30,22 @@ jobs:
             ASSET_NAME=$(echo "$ASSET" | jq -r '.name')
             echo "Downloading asset: $ASSET_NAME from $ASSET_URL"
             curl -L -H "Accept: application/octet-stream" "$ASSET_URL" -o "nascom/$ASSET_NAME"
+          done
+
+      - name: Fetch TC2014-FORTH release
+        id: fetch_forth
+        run: |
+          RELEASE_DATA=$(curl -s https://api.github.com/repos/tocisz/TC2014-FORTH/releases/latest)
+          RELEASE_ID=$(echo "$RELEASE_DATA" | jq -r '.id')
+          echo "Latest release ID: $RELEASE_ID"
+          echo "$RELEASE_DATA" > forth-release.json
+          ASSETS=$(jq -c '.assets[]' forth-release.json)    
+          mkdir -p forth
+          for ASSET in $ASSETS; do
+            ASSET_URL=$(echo "$ASSET" | jq -r '.url')
+            ASSET_NAME=$(echo "$ASSET" | jq -r '.name')
+            echo "Downloading asset: $ASSET_NAME from $ASSET_URL"
+            curl -L -H "Accept: application/octet-stream" "$ASSET_URL" -o "forth/$ASSET_NAME"
           done
 
       - name: List Downloaded Files

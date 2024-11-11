@@ -4,8 +4,7 @@ name: Build ROMs
 
 # Controls when the workflow will run
 on:
-  # Allows you to run this workflow manually from the Actions tab
-  workflow_dispatch:
+  push
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -54,5 +53,9 @@ jobs:
           dd bs=1024 count=8        if=nascom/rom.bin conv=notrunc of=NF000000.bin
           dd bs=1024 count=8 seek=8 if=forth/rom.bin  conv=notrunc of=NF000000.bin
 
-      - name: List Downloaded Files
-        run: xxd NF000000.bin
+      - name: Release
+        uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: |
+            NF000000.bin

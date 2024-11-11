@@ -20,7 +20,7 @@ jobs:
       - name: Fetch NASCOM-BASIC release
         id: fetch_release
         run: |
-          RELEASE_DATA=$(curl -s https://api.github.com/repos/other-user/other-repo/releases/latest)
+          RELEASE_DATA=$(curl -s https://api.github.com/repos/tocisz/RC2014-NASCOM/releases/latest)
           RELEASE_ID=$(echo "$RELEASE_DATA" | jq -r '.id')
           echo "Latest release ID: $RELEASE_ID"
           echo "$RELEASE_DATA" > nascom-release.json

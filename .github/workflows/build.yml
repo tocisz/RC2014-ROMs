@@ -47,15 +47,31 @@ jobs:
             curl -L -H "Accept: application/octet-stream" "$ASSET_URL" -o "forth/$ASSET_NAME"
           done
 
+      - name: Build hex2bin
+        id: hex2bin
+        run: |
+          curl -L https://sourceforge.net/projects/hex2bin/files/hex2bin/Hex2bin-2.5.tar.bz2/download -o Hex2bin-2.5.tar.bz2
+          tar xjf Hex2bin-2.5.tar.bz2
+          cd Hex2bin-2.5 && make
+          cd -
+
+      - name: Get SCM
+        id: fetch_scm
+        run: |
+          curl -L 'https://drive.usercontent.google.com/download?id=1-sBJwiTQTfwObihECvOzIs1ev9Xv1HbW&export=download&authuser=0' -o scm.zip
+          unzip -p scm.zip SCW020_SCM100_20190124/SCMonitor/Builds/SCMonitor-v100-R1-RC2014-08k-ROM.hex > scm.hex
+          Hex2bin-2.5/hex2bin scm.hex
+
       - name: Combine files
         run: |
-          dd bs=1024 count=32       if=/dev/zero | LC_ALL=C tr '\000' '\377' > NF000000.bin
-          dd bs=1024 count=8        if=nascom/rom.bin conv=notrunc of=NF000000.bin
-          dd bs=1024 count=8 seek=8 if=forth/rom.bin  conv=notrunc of=NF000000.bin
+          dd bs=1024 count=32        if=/dev/zero | LC_ALL=C tr '\000' '\377' > NF000009.bin
+          dd bs=1024 count=8         if=nascom/rom.bin conv=notrunc of=NF000009.bin
+          dd bs=1024 count=8 seek=8  if=forth/rom.bin  conv=notrunc of=NF000009.bin
+          dd bs=1024 count=8 seek=56 if=scm.bin        conv=notrunc of=NF000009.bin
 
       - name: Release
         uses: softprops/action-gh-release@v2
         if: startsWith(github.ref, 'refs/tags/')
         with:
           files: |
-            NF000000.bin
+            NF000009.bin

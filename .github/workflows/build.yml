@@ -47,13 +47,21 @@ jobs:
             curl -L -H "Accept: application/octet-stream" "$ASSET_URL" -o "forth/$ASSET_NAME"
           done
 
-      - name: Build hex2bin
+      - name: Get hex2bin
         id: hex2bin
         run: |
-          curl -L https://sourceforge.net/projects/hex2bin/files/hex2bin/Hex2bin-2.5.tar.bz2/download -o Hex2bin-2.5.tar.bz2
-          tar xjf Hex2bin-2.5.tar.bz2
-          cd Hex2bin-2.5 && make clean hex2bin
-          cd -
+          RELEASE_DATA=$(curl -s https://api.github.com/repos/tocisz/hex2bin/releases/latest)
+          RELEASE_ID=$(echo "$RELEASE_DATA" | jq -r '.id')
+          echo "Latest release ID: $RELEASE_ID"
+          echo "$RELEASE_DATA" > hex2bin-release.json
+          ASSETS=$(jq -c '.assets[]' hex2bin-release.json)    
+          for ASSET in $ASSETS; do
+            ASSET_URL=$(echo "$ASSET" | jq -r '.url')
+            ASSET_NAME=$(echo "$ASSET" | jq -r '.name')
+            echo "Downloading asset: $ASSET_NAME from $ASSET_URL"
+            curl -L -H "Accept: application/octet-stream" "$ASSET_URL" -o "$ASSET_NAME"
+          done
+          unzip hex2bin.zip
 
       - name: Get SCM
         id: fetch_scm

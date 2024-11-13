@@ -62,13 +62,14 @@ jobs:
             curl -L -H "Accept: application/octet-stream" "$ASSET_URL" -o "$ASSET_NAME"
           done
           unzip hex2bin.zip
+          chmod +x hex2bin mot2bin
 
       - name: Get SCM
         id: fetch_scm
         run: |
           curl -L 'https://drive.usercontent.google.com/download?id=1-sBJwiTQTfwObihECvOzIs1ev9Xv1HbW&export=download&authuser=0' -o scm.zip
           unzip -p scm.zip SCW020_SCM100_20190124/SCMonitor/Builds/SCMonitor-v100-R1-RC2014-08k-ROM.hex > scm.hex
-          Hex2bin-2.5/hex2bin scm.hex
+          ./hex2bin scm.hex
 
       - name: Combine files
         run: |
